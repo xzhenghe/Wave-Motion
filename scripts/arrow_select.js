@@ -3,7 +3,7 @@ window.Arrow = window.Arrow || {};
 Arrow.init = function() {
     Arrow.setup.initConst();
     Arrow.setup.initObjects();
-
+    Arrow.setup.initDrag();
 
 };
 
@@ -18,25 +18,49 @@ Arrow.core = {
     },
 
     drawArrow: function(arrow) {
-        Arrow.helpers.updateArrowPoint(arrow);
+        Arrow.helpers.updateArrow(arrow);
     }
 }
 
 Arrow.helpers = {
-    updateArrowPoint: function(arrow) {
-        arrow.body.attr('x2', (arrow.x + 1)*Arrow.width/2)
-                  .attr('y2', (1 - arrow.y)*Arrow.height/2);
+    updateArrow: function(arrow) {
+        let tipx = (arrow.x + 1)*Arrow.width/2;
+        let tipy = (1 - arrow.y)*Arrow.height/2;
+
+        arrow.body.attr('x2', tipx)
+                  .attr('y2', tipy);
+        arrow.tip.attr('cx', tipx)
+                 .attr('cy', tipy);
+    },
+
+    convertCoords: function(sx, sy) {
+        x = 2*sx/Arrow.width - 1;
+        y = 1 - 2*sy/Arrow.height;
+        return [x, y]
+    },
+
+    updateAPP: function() {
+        APP.rx = Arrow.rArrow.x;
+        APP.ry = Arrow.rArrow.y;
+
+        APP.ux = Arrow.uArrow.x;
+        APP.uy = Arrow.uArrow.y;
     }
 }
 
 Arrow.setup = {
     initConst: function() {
-        Arrow.width = 100;
-        Arrow.height = 100;
+        Arrow.width = 200;
+        Arrow.height = 200;
+
+        Arrow.strokeWidth = 2;
+        Arrow.tipRadius = 5;
     },
 
     initObjects: function() {
         Arrow.svg = d3.select('#arrow');
+        Arrow.svg.attr('width', Arrow.width)
+                 .attr('height', Arrow.height);
 
         Arrow.rArrow = {
             x: 0.5,
@@ -52,23 +76,44 @@ Arrow.setup = {
         Arrow.setup.initArrow(Arrow.uArrow);
     },
 
+    initDrag: function() {
+        function dragged(arrow, name) {
+            return function() {
+                let xy = Arrow.helpers.convertCoords(d3.event.x, d3.event.y);
+                arrow.x = xy[0];
+                arrow.y = xy[1];
+                Arrow.helpers.updateArrow(arrow);
+                Arrow.helpers.updateAPP();
+                APP.core.updateSliders();
+            }
+        };
+        Arrow.rArrow.tip.call(d3.drag().on('drag', dragged(Arrow.rArrow)));
+        Arrow.uArrow.tip.call(d3.drag().on('drag', dragged(Arrow.uArrow)));
+    },
+
     initArrow: function(arrow) {
         arrow.container = Arrow.setup.createArrowContainer();
         arrow.body = Arrow.setup.createArrowBody(arrow);
-        Arrow.helpers.updateArrowPoint(arrow);
+        arrow.tip = Arrow.setup.createArrowTip(arrow);
+        Arrow.helpers.updateArrow(arrow);
     },
 
     createArrowContainer: function() {
         return Arrow.svg.append('svg')
-                            .attr('width', Arrow.width)
-                            .attr('height', Arrow.height);
+                        .attr('width', Arrow.width)
+                        .attr('height', Arrow.height);
     },
 
     createArrowBody: function(arrow) {
         let body = arrow.container.append('line')
-                                .attr('x1', Arrow.width/2).attr('y1', Arrow.width/2)
-                                .attr('stroke-width', 2)
-                                .attr('stroke', 'black');
+                                  .attr('x1', Arrow.width/2).attr('y1', Arrow.width/2)
+                                  .attr('stroke-width', Arrow.strokeWidth)
+                                  .attr('stroke', 'black');
         return body;
+    },
+
+    createArrowTip: function(arrow) {
+        return arrow.container.append('circle')
+                              .attr('r', Arrow.tipRadius);
     }
 };

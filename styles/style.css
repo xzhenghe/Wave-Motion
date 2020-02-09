@@ -1,12 +1,17 @@
+#visualisation {
+    height: 25%;
+}
+
 #interactive {
-    width: width;
+    width: 100%;
 }
 
 #arrow {
-    float: left;
-    border: 25px solid transparent;
+    border: 5px solid grey;
 }
 
 #control {
+    float: left;
     overflow: hidden;
+    border: 10px solid transparent;
 }

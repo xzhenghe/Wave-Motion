@@ -3,10 +3,10 @@ window.APP = window.APP || {};
 APP.init = function() {
     APP.isRunning = false;
 
-    Arrow.init(); // init arrows
-
     APP.setup.initConsts();
     APP.setup.initVars();
+
+    Arrow.init(); // init arrows
 
     APP.setup.initGraph();
     APP.setup.initButton();
@@ -39,8 +39,6 @@ APP.core = {
         APP.core.update();
         APP.core.animate();
 
-        Arrow.core.draw();
-
         APP.animationFrameLoop = window.requestAnimationFrame(APP.core.frame);
     },
 
@@ -65,6 +63,20 @@ APP.core = {
                 redraw: false
             }
         });
+    },
+
+    updateSliders: function() {
+        APP.rxRange.value = APP.rx;
+        APP.rxDisplay.textContent = 'rx = ' + Number(APP.rx).toFixed(2);
+
+        APP.ryRange.value = APP.ry;
+        APP.ryDisplay.textContent = 'ry = ' + Number(APP.ry).toFixed(2);
+
+        APP.uxRange.value = APP.ux;
+        APP.uxDisplay.textContent = 'ux = ' + Number(APP.ux).toFixed(2);
+
+        APP.uyRange.value = APP.uy;
+        APP.uyDisplay.textContent = 'uy = ' + Number(APP.uy).toFixed(2);
     }
 }
 
@@ -114,7 +126,7 @@ APP.setup = {
     },
 
     initGraph: function() {
-        APP.graph = document.getElementById('myDiv'); // div of graph
+        APP.graph = document.getElementById('visualisation'); // div of graph
 
         let data = [{
             x: APP.x,
@@ -156,6 +168,7 @@ APP.setup = {
             APP.rxDisplay.textContent = 'rx = ' + APP.rx;
 
             Arrow.rArrow.x = parseFloat(APP.rx);
+            Arrow.core.draw();
         });
 
         APP.ryRange = document.getElementById('ry-range');
@@ -166,6 +179,7 @@ APP.setup = {
             APP.ryDisplay.textContent = 'ry = ' + APP.ry;
 
             Arrow.rArrow.y = parseFloat(APP.ry);
+            Arrow.core.draw();
         });
 
         // u sliders
