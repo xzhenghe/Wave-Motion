@@ -38,11 +38,11 @@ Arrow.helpers = {
     },
 
     updateAPP: function() {
-        APP.rx = Arrow.rArrow.x;
-        APP.ry = Arrow.rArrow.y;
+        Vis.rx = Arrow.rArrow.x;
+        Vis.ry = Arrow.rArrow.y;
 
-        APP.ux = Arrow.uArrow.x;
-        APP.uy = Arrow.uArrow.y;
+        Vis.ux = Arrow.uArrow.x;
+        Vis.uy = Arrow.uArrow.y;
     }
 }
 
@@ -61,14 +61,14 @@ Arrow.setup = {
                  .attr('height', Arrow.height);
 
         Arrow.rArrow = {
-            x: APP.rx,
-            y: APP.ry,
+            x: Vis.rx,
+            y: Vis.ry,
             text: 'r'
         };
 
         Arrow.uArrow = {
-            x: APP.ux,
-            y: APP.uy,
+            x: Vis.ux,
+            y: Vis.uy,
             text: 'u'
         };
 
@@ -77,14 +77,14 @@ Arrow.setup = {
     },
 
     initDrag: function() {
-        function dragged(arrow, name) {
+        function dragged(arrow) {
             return function() {
                 let xy = Arrow.helpers.convertCoords(d3.event.x, d3.event.y);
                 arrow.x = xy[0];
                 arrow.y = xy[1];
                 Arrow.helpers.updateArrow(arrow);
-                Arrow.helpers.updateAPP();
-                APP.core.updateSliders();
+                Arrow.helpers.updateAPP(); // sync arrow values with main vis
+                Vis.core.updateSliders(); // trigger update of sliders in vis
             }
         };
         Arrow.rArrow.tip.call(d3.drag().on('drag', dragged(Arrow.rArrow)));

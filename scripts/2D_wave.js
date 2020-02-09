@@ -1,58 +1,58 @@
-window.APP = window.APP || {};
+window.Vis = window.Vis || {};
 
-APP.init = function() {
-    APP.isRunning = false;
+Vis.init = function() {
+    Vis.isRunning = false;
 
-    APP.setup.initConsts();
-    APP.setup.initVars();
+    Vis.setup.initConsts();
+    Vis.setup.initVars();
 
     Arrow.init(); // init arrows
 
-    APP.setup.initGraph();
-    APP.setup.initButton();
-    APP.setup.initSlider();
+    Vis.setup.initGraph();
+    Vis.setup.initButton();
+    Vis.setup.initSlider();
 
-    APP.start();
+    Vis.start();
 };
 
-APP.start = function() {
-    if (APP._stoptime) {
-        APP._then += Date.now() - APP._stoptime; // add stopped time
+Vis.start = function() {
+    if (Vis._stoptime) {
+        Vis._then += Date.now() - Vis._stoptime; // add stopped time
     };
 
-    if (!APP.isRunning) {
-        APP.core.frame();
-        APP.isRunning = true;
+    if (!Vis.isRunning) {
+        Vis.core.frame();
+        Vis.isRunning = true;
     };
 };
 
-APP.stop = function() {
-    window.cancelAnimationFrame(APP.animationFrameLoop);
-    APP.isRunning = false;
-    APP._stoptime = Date.now(); // record when animation paused
+Vis.stop = function() {
+    window.cancelAnimationFrame(Vis.animationFrameLoop);
+    Vis.isRunning = false;
+    Vis._stoptime = Date.now(); // record when animation paused
 }
 
-APP.core = {
+Vis.core = {
     frame: function() {
-        APP.t = (Date.now() - APP._then) / 1000; // time since start in seconds
+        Vis.t = (Date.now() - Vis._then) / 1000; // time since start in seconds
 
-        APP.core.update();
-        APP.core.animate();
+        Vis.core.update();
+        Vis.core.animate();
 
-        APP.animationFrameLoop = window.requestAnimationFrame(APP.core.frame);
+        Vis.animationFrameLoop = window.requestAnimationFrame(Vis.core.frame);
     },
 
     update: function() {
-        APP.workers.calcPos();
+        Vis.workers.calcPos();
     },
 
     animate: function() {
         let data = [{
-            x: APP.x,
-            y: APP.y
+            x: Vis.x,
+            y: Vis.y
         }];
 
-        Plotly.animate(APP.graph, {
+        Plotly.animate(Vis.graph, {
             data: data
         }, {
             transition: {
@@ -66,71 +66,71 @@ APP.core = {
     },
 
     updateSliders: function() {
-        APP.rxRange.value = APP.rx;
-        APP.rxDisplay.textContent = 'rx = ' + Number(APP.rx).toFixed(2);
+        Vis.rxRange.value = Vis.rx;
+        Vis.rxDisplay.textContent = 'rx = ' + Number(Vis.rx).toFixed(2);
 
-        APP.ryRange.value = APP.ry;
-        APP.ryDisplay.textContent = 'ry = ' + Number(APP.ry).toFixed(2);
+        Vis.ryRange.value = Vis.ry;
+        Vis.ryDisplay.textContent = 'ry = ' + Number(Vis.ry).toFixed(2);
 
-        APP.uxRange.value = APP.ux;
-        APP.uxDisplay.textContent = 'ux = ' + Number(APP.ux).toFixed(2);
+        Vis.uxRange.value = Vis.ux;
+        Vis.uxDisplay.textContent = 'ux = ' + Number(Vis.ux).toFixed(2);
 
-        APP.uyRange.value = APP.uy;
-        APP.uyDisplay.textContent = 'uy = ' + Number(APP.uy).toFixed(2);
+        Vis.uyRange.value = Vis.uy;
+        Vis.uyDisplay.textContent = 'uy = ' + Number(Vis.uy).toFixed(2);
     }
 }
 
-APP.workers = {
+Vis.workers = {
     calcParams: function() {
-        APP.kx = APP.rx * Math.PI / APP.a;
-        APP.ky = APP.ry * Math.PI / APP.a;
+        Vis.kx = Vis.rx * Math.PI / Vis.a;
+        Vis.ky = Vis.ry * Math.PI / Vis.a;
 
-        APP.w = 2 * APP.dw * Math.sqrt(Math.sin(APP.kx * APP.a / 2)**2 + Math.sin(APP.ky * APP.a / 2)**2);
+        Vis.w = 2 * Vis.dw * Math.sqrt(Math.sin(Vis.kx * Vis.a / 2)**2 + Math.sin(Vis.ky * Vis.a / 2)**2);
     },
 
     calcPos: function() {
-        APP.workers.calcParams();
+        Vis.workers.calcParams();
 
-        for (let i=0; i < APP.Nx; i++) {
-            for (let j=0; j < APP.Ny; j++) {
-                let n = APP.Ny * i + j;
-                let offset = Math.cos(APP.kx*APP.a*i + APP.ky*APP.a*j - APP.w*APP.t);
+        for (let i=0; i < Vis.Nx; i++) {
+            for (let j=0; j < Vis.Ny; j++) {
+                let n = Vis.Ny * i + j;
+                let offset = Math.cos(Vis.kx*Vis.a*i + Vis.ky*Vis.a*j - Vis.w*Vis.t);
 
-                APP.x[n] = i*APP.a + APP.ux * offset;
-                APP.y[n] = j*APP.a + APP.uy * offset;
+                Vis.x[n] = i*Vis.a + Vis.ux * offset;
+                Vis.y[n] = j*Vis.a + Vis.uy * offset;
             }
         }
     }
 }
 
-APP.setup = {
+Vis.setup = {
     initConsts: function() {
-        APP.a = 1; // atomic spacing
-        APP.dw = 1; // debye wavelength
+        Vis.a = 1; // atomic spacing
+        Vis.dw = 1; // debye wavelength
 
-        APP.Nx = 15; // # of atoms in x direction
-        APP.Ny = 10; // # of atoms in y direction
+        Vis.Nx = 20; // # of atoms in x direction
+        Vis.Ny = 18; // # of atoms in y direction
     },
 
     initVars: function() {
-        APP._then = Date.now();
+        Vis._then = Date.now();
 
-        APP.rx = 0.5; // % of max x wavenumber, (-1, 1)
-        APP.ry = 0.5; // % of max y wavenumber, (-1, 1)
+        Vis.rx = 0.5; // % of max x wavenumber, (-1, 1)
+        Vis.ry = 0.5; // % of max y wavenumber, (-1, 1)
 
-        APP.ux = -0.5; // x amplitude
-        APP.uy = 0.5; // y amplitude
+        Vis.ux = -0.5; // x amplitude
+        Vis.uy = 0.5; // y amplitude
 
-        APP.x = new Array(APP.Nx * APP.Ny);
-        APP.y = new Array(APP.Nx * APP.Ny);
+        Vis.x = new Array(Vis.Nx * Vis.Ny);
+        Vis.y = new Array(Vis.Nx * Vis.Ny);
     },
 
     initGraph: function() {
-        APP.graph = document.getElementById('visualisation'); // div of graph
+        Vis.graph = document.getElementById('visualisation'); // div of graph
 
         let data = [{
-            x: APP.x,
-            y: APP.y,
+            x: Vis.x,
+            y: Vis.y,
             type: 'scatter',
             mode: 'markers',
             markers: {
@@ -147,72 +147,72 @@ APP.setup = {
                 t: 20,
                 pad: 4
               },
-            xaxis: { range: [0, APP.Nx * APP.a] },
-            yaxis: { range: [0, APP.Ny * APP.a] }
+            xaxis: { range: [0, Vis.Nx * Vis.a] },
+            yaxis: { range: [0, Vis.Ny * Vis.a] }
         };
 
-        Plotly.newPlot(APP.graph, data, layout);
+        Plotly.newPlot(Vis.graph, data, layout);
     },
 
     initButton: function() {
-        APP.button = document.getElementById('start-stop');
+        Vis.button = document.getElementById('start-stop');
 
-        APP.button.addEventListener('click', function() {
-            if (APP.isRunning) {
-                APP.stop();
+        Vis.button.addEventListener('click', function() {
+            if (Vis.isRunning) {
+                Vis.stop();
             } else {
-                APP.start();
+                Vis.start();
             };
         });
     },
 
     initSlider: function() {
         // r sliders
-        APP.rxRange = document.getElementById('rx-range');
-        APP.rxDisplay = document.getElementById('rx-display');
+        Vis.rxRange = document.getElementById('rx-range');
+        Vis.rxDisplay = document.getElementById('rx-display');
 
-        APP.rxRange.addEventListener('input', function() {
-            APP.rx = APP.rxRange.value;
-            APP.rxDisplay.textContent = 'rx = ' + APP.rx;
+        Vis.rxRange.addEventListener('input', function() {
+            Vis.rx = Vis.rxRange.value;
+            Vis.rxDisplay.textContent = 'rx = ' + Vis.rx;
 
-            Arrow.rArrow.x = parseFloat(APP.rx);
+            Arrow.rArrow.x = parseFloat(Vis.rx);
             Arrow.core.draw();
         });
 
-        APP.ryRange = document.getElementById('ry-range');
-        APP.ryDisplay = document.getElementById('ry-display');
+        Vis.ryRange = document.getElementById('ry-range');
+        Vis.ryDisplay = document.getElementById('ry-display');
 
-        APP.ryRange.addEventListener('input', function() {
-            APP.ry = APP.ryRange.value;
-            APP.ryDisplay.textContent = 'ry = ' + APP.ry;
+        Vis.ryRange.addEventListener('input', function() {
+            Vis.ry = Vis.ryRange.value;
+            Vis.ryDisplay.textContent = 'ry = ' + Vis.ry;
 
-            Arrow.rArrow.y = parseFloat(APP.ry);
+            Arrow.rArrow.y = parseFloat(Vis.ry);
             Arrow.core.draw();
         });
 
         // u sliders
-        APP.uxRange = document.getElementById('ux-range');
-        APP.uxDisplay = document.getElementById('ux-display');
+        Vis.uxRange = document.getElementById('ux-range');
+        Vis.uxDisplay = document.getElementById('ux-display');
 
-        APP.uxRange.addEventListener('input', function() {
-            APP.ux = APP.uxRange.value;
-            APP.uxDisplay.textContent = 'ux = ' + APP.ux;
+        Vis.uxRange.addEventListener('input', function() {
+            Vis.ux = Vis.uxRange.value;
+            Vis.uxDisplay.textContent = 'ux = ' + Vis.ux;
 
-            Arrow.uArrow.x = parseFloat(APP.ux);
+            Arrow.uArrow.x = parseFloat(Vis.ux);
             Arrow.core.draw();
         });
 
-        APP.uyRange = document.getElementById('uy-range');
-        APP.uyDisplay = document.getElementById('uy-display');
+        Vis.uyRange = document.getElementById('uy-range');
+        Vis.uyDisplay = document.getElementById('uy-display');
 
-        APP.uyRange.addEventListener('input', function() {
-            APP.uy = APP.uyRange.value;
-            APP.uyDisplay.textContent = 'uy = ' + APP.uy;
+        Vis.uyRange.addEventListener('input', function() {
+            Vis.uy = Vis.uyRange.value;
+            Vis.uyDisplay.textContent = 'uy = ' + Vis.uy;
 
-            Arrow.uArrow.y = parseFloat(APP.uy);
+            Arrow.uArrow.y = parseFloat(Vis.uy);
             Arrow.core.draw();
         });
     }
 }
 
-document.addEventListener('DOMContentLoaded', APP.init);
+document.addEventListener('DOMContentLoaded', Vis.init);
