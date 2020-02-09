@@ -31,8 +31,8 @@ APP.stop = function() {
 }
 
 APP.core = {
-    frame: function(timenow) {
-        APP.t = (timenow - APP._then) / 1000; // time since start in seconds
+    frame: function() {
+        APP.t = (Date.now() - APP._then) / 1000; // time since start in seconds
 
         APP.core.update();
         APP.core.animate();
@@ -46,7 +46,8 @@ APP.core = {
 
     animate: function() {
         let data = [{
-            x: APP.x
+            x: APP.x,
+            y: APP.y
         }];
 
         Plotly.animate(APP.graph, {
@@ -65,16 +66,23 @@ APP.core = {
 
 APP.workers = {
     calcParams: function() {
-        APP.k = APP.r * Math.PI / APP.a;
-        APP.w = 2 * APP.dw * Math.sin(APP.k * APP.a / 2);
+        APP.kx = APP.rx * Math.PI / APP.a;
+        APP.ky = APP.ry * Math.PI / APP.a;
+
+        APP.w = 2 * APP.dw * Math.sqrt(Math.sin(APP.kx * APP.a / 2)**2 + Math.sin(APP.ky * APP.a / 2)**2);
     },
 
     calcPos: function() {
         APP.workers.calcParams();
 
-        for (let i=0; i < APP.N; i++) {
-            let offset = APP.u * Math.cos(APP.k*APP.a*i - APP.w*APP.t);
-            APP.x[i] = i*APP.a + offset;
+        for (let i=0; i < APP.Nx; i++) {
+            for (let j=0; j < APP.Ny; j++) {
+                let n = APP.Ny * i + j;
+                let offset = Math.cos(APP.kx*APP.a*i + APP.ky*APP.a*j - APP.w*APP.t);
+
+                APP.x[n] = i*APP.a + APP.ux * offset;
+                APP.y[n] = j*APP.a + APP.uy * offset;
+            }
         }
     }
 }
@@ -84,21 +92,21 @@ APP.setup = {
         APP.a = 1; // atomic spacing
         APP.dw = 1; // debye wavelength
 
-        APP.N = 10; // # of atoms
+        APP.Nx = 20; // # of atoms in x direction
+        APP.Ny = 10; // # of atoms in y direction
     },
 
     initVars: function() {
         APP._then = Date.now();
 
-        APP.r = 0.5; // % of max wavenumber, (-1, 1)
-        APP.u = 0.5; // amplitude
+        APP.rx = 0.5; // % of max x wavenumber, (-1, 1)
+        APP.ry = 0.5; // % of max y wavenumber, (-1, 1)
 
-        APP.x = new Array(APP.N);
+        APP.ux = 0.5; // x amplitude
+        APP.uy = 0.5; // y amplitude
 
-        APP.y = new Array(APP.N);
-        for (let i=0; i < APP.N; i++) {
-            APP.y[i] = 0; // initialize all to zeroes
-        };
+        APP.x = new Array(APP.Nx * APP.Ny);
+        APP.y = new Array(APP.Nx * APP.Ny);
     },
 
     initGraph: function() {
@@ -110,13 +118,13 @@ APP.setup = {
             type: 'scatter',
             mode: 'markers',
             marker: {
-                size: 10
+                size: 6
             }
         }];
 
         let layout = {
-            xaxis: { range: [0, APP.N * APP.a] },
-            yaxis: { range: [-1, 1] }
+            xaxis: { range: [0, APP.Nx * APP.a] },
+            yaxis: { range: [0, APP.Ny * APP.a] }
         };
 
         Plotly.plot(APP.graph, data, layout);
@@ -136,21 +144,37 @@ APP.setup = {
 
     initSlider: function() {
         // r sliders
-        APP.rRange = document.getElementById('r-range');
-        APP.rDisplay = document.getElementById('r-display');
+        APP.rxRange = document.getElementById('rx-range');
+        APP.rxDisplay = document.getElementById('rx-display');
 
-        APP.rRange.addEventListener('input', function() {
-            APP.r = APP.rRange.value;
-            APP.rDisplay.textContent = 'r = ' + APP.r;
+        APP.rxRange.addEventListener('input', function() {
+            APP.rx = APP.rxRange.value;
+            APP.rxDisplay.textContent = 'rx = ' + APP.rx;
+        });
+
+        APP.ryRange = document.getElementById('ry-range');
+        APP.ryDisplay = document.getElementById('ry-display');
+
+        APP.ryRange.addEventListener('input', function() {
+            APP.ry = APP.ryRange.value;
+            APP.ryDisplay.textContent = 'ry = ' + APP.ry;
         });
 
         // u sliders
-        APP.uRange = document.getElementById('u-range');
-        APP.uDisplay = document.getElementById('u-display');
+        APP.uxRange = document.getElementById('ux-range');
+        APP.uxDisplay = document.getElementById('ux-display');
 
-        APP.uRange.addEventListener('input', function() {
-            APP.u = APP.uRange.value;
-            APP.uDisplay.textContent = 'u = ' + APP.u;
+        APP.uxRange.addEventListener('input', function() {
+            APP.ux = APP.uxRange.value;
+            APP.uxDisplay.textContent = 'ux = ' + APP.ux;
+        });
+
+        APP.uyRange = document.getElementById('uy-range');
+        APP.uyDisplay = document.getElementById('uy-display');
+
+        APP.uyRange.addEventListener('input', function() {
+            APP.uy = APP.uyRange.value;
+            APP.uyDisplay.textContent = 'uy = ' + APP.uy;
         });
     }
 }
