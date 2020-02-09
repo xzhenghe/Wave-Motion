@@ -31,6 +31,8 @@ Arrow.helpers = {
                   .attr('y2', tipy);
         arrow.tip.attr('cx', tipx)
                  .attr('cy', tipy);
+        arrow.text.attr('x', tipx + 5)
+                  .attr('y', tipy - 5);
     },
 
     convertCoords: function(sx, sy) {
@@ -50,8 +52,8 @@ Arrow.helpers = {
 
 Arrow.setup = {
     initConst: function() {
-        Arrow.width = 200;
-        Arrow.height = 200;
+        Arrow.width = window.innerHeight*0.45;
+        Arrow.height = window.innerHeight*0.45;
 
         Arrow.strokeWidth = 2;
         Arrow.tipRadius = 5;
@@ -63,13 +65,15 @@ Arrow.setup = {
                  .attr('height', Arrow.height);
 
         Arrow.rArrow = {
-            x: 0.5,
-            y: 0.5,
+            x: APP.rx,
+            y: APP.ry,
+            text: 'r'
         };
 
         Arrow.uArrow = {
-            x: 0.5,
-            y: 0.5,
+            x: APP.ux,
+            y: APP.uy,
+            text: 'u'
         };
 
         Arrow.setup.initArrow(Arrow.rArrow);
@@ -95,6 +99,8 @@ Arrow.setup = {
         arrow.container = Arrow.setup.createArrowContainer();
         arrow.body = Arrow.setup.createArrowBody(arrow);
         arrow.tip = Arrow.setup.createArrowTip(arrow);
+        arrow.text = Arrow.setup.createArrowText(arrow);
+
         Arrow.helpers.updateArrow(arrow);
     },
 
@@ -105,15 +111,18 @@ Arrow.setup = {
     },
 
     createArrowBody: function(arrow) {
-        let body = arrow.container.append('line')
+        return arrow.container.append('line')
                                   .attr('x1', Arrow.width/2).attr('y1', Arrow.width/2)
                                   .attr('stroke-width', Arrow.strokeWidth)
                                   .attr('stroke', 'black');
-        return body;
     },
 
     createArrowTip: function(arrow) {
         return arrow.container.append('circle')
                               .attr('r', Arrow.tipRadius);
+    },
+
+    createArrowText: function(arrow) {
+        return arrow.container.append('text').text(arrow.text);
     }
 };

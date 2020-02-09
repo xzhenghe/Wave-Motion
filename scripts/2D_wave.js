@@ -108,7 +108,7 @@ APP.setup = {
         APP.a = 1; // atomic spacing
         APP.dw = 1; // debye wavelength
 
-        APP.Nx = 20; // # of atoms in x direction
+        APP.Nx = 15; // # of atoms in x direction
         APP.Ny = 10; // # of atoms in y direction
     },
 
@@ -118,7 +118,7 @@ APP.setup = {
         APP.rx = 0.5; // % of max x wavenumber, (-1, 1)
         APP.ry = 0.5; // % of max y wavenumber, (-1, 1)
 
-        APP.ux = 0.5; // x amplitude
+        APP.ux = -0.5; // x amplitude
         APP.uy = 0.5; // y amplitude
 
         APP.x = new Array(APP.Nx * APP.Ny);
@@ -139,6 +139,14 @@ APP.setup = {
         }];
 
         let layout = {
+            height: window.innerHeight/2,
+            margin: {
+                l: 20,
+                r: 25,
+                b: 25,
+                t: 20,
+                pad: 4
+              },
             xaxis: { range: [0, APP.Nx * APP.a] },
             yaxis: { range: [0, APP.Ny * APP.a] }
         };
@@ -189,6 +197,9 @@ APP.setup = {
         APP.uxRange.addEventListener('input', function() {
             APP.ux = APP.uxRange.value;
             APP.uxDisplay.textContent = 'ux = ' + APP.ux;
+
+            Arrow.uArrow.x = parseFloat(APP.ux);
+            Arrow.core.draw();
         });
 
         APP.uyRange = document.getElementById('uy-range');
@@ -197,6 +208,9 @@ APP.setup = {
         APP.uyRange.addEventListener('input', function() {
             APP.uy = APP.uyRange.value;
             APP.uyDisplay.textContent = 'uy = ' + APP.uy;
+
+            Arrow.uArrow.y = parseFloat(APP.uy);
+            Arrow.core.draw();
         });
     }
 }

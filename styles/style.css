@@ -1,7 +1,3 @@
-#visualisation {
-    height: 25%;
-}
-
 #interactive {
     width: 100%;
 }
@@ -12,6 +8,13 @@
 
 #control {
     float: left;
+    width: 40%;
+    max-width: 300px;
     overflow: hidden;
     border: 10px solid transparent;
+}
+
+input {
+    width: 95%;
+    max-width: 300px;
 }
