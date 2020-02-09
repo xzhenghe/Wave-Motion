@@ -117,7 +117,7 @@ APP.setup = {
             y: APP.y,
             type: 'scatter',
             mode: 'markers',
-            marker: {
+            markers: {
                 size: 6
             }
         }];
@@ -127,7 +127,7 @@ APP.setup = {
             yaxis: { range: [0, APP.Ny * APP.a] }
         };
 
-        Plotly.plot(APP.graph, data, layout);
+        Plotly.newPlot(APP.graph, data, layout);
     },
 
     initButton: function() {
