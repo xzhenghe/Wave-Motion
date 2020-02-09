@@ -1,0 +1,12 @@
+#interactive {
+    width: width;
+}
+
+#arrow {
+    float: left;
+    border: 25px solid transparent;
+}
+
+#control {
+    overflow: hidden;
+}

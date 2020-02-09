@@ -3,6 +3,8 @@ window.APP = window.APP || {};
 APP.init = function() {
     APP.isRunning = false;
 
+    Arrow.init(); // init arrows
+
     APP.setup.initConsts();
     APP.setup.initVars();
 
@@ -36,6 +38,8 @@ APP.core = {
 
         APP.core.update();
         APP.core.animate();
+
+        Arrow.core.draw();
 
         APP.animationFrameLoop = window.requestAnimationFrame(APP.core.frame);
     },
@@ -150,6 +154,8 @@ APP.setup = {
         APP.rxRange.addEventListener('input', function() {
             APP.rx = APP.rxRange.value;
             APP.rxDisplay.textContent = 'rx = ' + APP.rx;
+
+            Arrow.rArrow.x = parseFloat(APP.rx);
         });
 
         APP.ryRange = document.getElementById('ry-range');
@@ -158,6 +164,8 @@ APP.setup = {
         APP.ryRange.addEventListener('input', function() {
             APP.ry = APP.ryRange.value;
             APP.ryDisplay.textContent = 'ry = ' + APP.ry;
+
+            Arrow.rArrow.y = parseFloat(APP.ry);
         });
 
         // u sliders
