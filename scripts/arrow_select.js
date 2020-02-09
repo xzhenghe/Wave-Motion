@@ -7,10 +7,6 @@ Arrow.init = function() {
 
 };
 
-Arrow.start = function() {
-
-};
-
 Arrow.core = {
     draw: function() {
         Arrow.core.drawArrow(Arrow.rArrow);
