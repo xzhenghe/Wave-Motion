@@ -1,54 +1,114 @@
-var t = [];
-var f = [];
+window.APP = window.APP || {};
 
-const omega = 1;
-const A = 2;
-const N = 50;          //N atoms
-const a = 1;           //atomic spacing
-const wd = 1;          //Debye wavelength
+APP.init = function() {
+    APP.isRunning = false;
+    APP.setup.initConsts();
+    APP.setup.initVars();
+    APP.setup.initGraph();
 
-
-for (let i=0; i<N; i++) {
-    t.push(0);
+    APP.start();
 };
 
-function wave_1d(uk, k, t) {
-    var x = [];
-    var w = Math.sqrt(4*wd*(Math.sin(k*a/2)**2));
-    for (let l = 0; l < N; l++) {
-        x.push(l*a + uk*Math.cos(l*k*a - w*t));
-    };
-    return x;
+APP.start = function() {
+    if (!APP.isRunning) {
+        APP.core.frame();
+        APP.isRunning = true;
+    }
 };
 
+APP.stop = function() {
+    window.cancelAnimationFrame(APP.animationFrameLoop);
+    APP.isRunning = false;
+}
 
+APP.core = {
+    frame: function() {
+        APP.t = (Date.now() - APP._then) / 1000; // time since start in seconds
 
-data = [{
-    x: t,
-    y: t,
-    mode: 'markers',
-    type: 'scatter'
-}];
+        APP.core.update();
+        APP.core.animate();
 
-let T = 0;
+        APP.animationFrameLoop = window.requestAnimationFrame(APP.core.frame);
+    },
 
-function main() {
-    Plotly.plot('myDiv', data);
+    update: function() {
+        APP.workers.calcPos();
+    },
 
-    setInterval(
-        function() {
-            let f = wave_1d(0.1, 0.1, T);
-            //console.log(f);
-            T += 1
-            Plotly.animate(
-                'myDiv', {data: [{x: f}]}, 
-                {
-                    fromcurrent: true,
-                    transition: {duration: 0,},
-                    frame: {duration: 0, redraw: false,},
-                    mode: "afterall"
-                });
-        }, 30);
-};
+    animate: function() {
+        let data = [{
+            x: APP.x
+        }];
 
-$(document).ready(main);
+        Plotly.animate(APP.graphDiv, {
+            data: data
+        }, {
+            transition: {
+                duration: 0
+            },
+            frame: {
+                duration: 0,
+                redraw: false
+            }
+        });
+    }
+}
+
+APP.workers = {
+    calcParams: function() {
+        APP.k = APP.r * Math.PI / APP.a;
+        APP.w = 2 * APP.dw * Math.sin(APP.k * APP.a / 2);
+    },
+
+    calcPos: function() {
+        APP.workers.calcParams();
+
+        for (let i=0; i < APP.N; i++) {
+            let offset = APP.u * Math.cos(APP.k*APP.a*i - APP.w*APP.t);
+            APP.x[i] = i*APP.a + offset;
+        }
+    }
+}
+
+APP.setup = {
+    initConsts: function() {
+        APP.a = 1; // atomic spacing
+        APP.dw = 1; // debye wavelength
+
+        APP.N = 25; // # of atoms
+
+        APP.graphDiv = document.getElementById('myDiv'); // div of graph
+    },
+
+    initVars: function() {
+        APP._then = Date.now();
+
+        APP.r = 0.5; // % of max wavenumber, (-1, 1)
+        APP.u = 0.5; // amplitude
+
+        APP.x = new Array(APP.N);
+
+        APP.y = new Array(APP.N);
+        for (let i=0; i < APP.N; i++) {
+            APP.y[i] = 0; // initialize all to zeroes
+        };
+    },
+
+    initGraph: function() {
+        let data = [{
+            x: APP.x,
+            y: APP.y,
+            type: 'scatter',
+            mode: 'markers'
+        }];
+
+        let layout = {
+            xaxis: { range: [0, APP.N * APP.a] },
+            yaxis: { range: [-1, 1] }
+        };
+
+        Plotly.plot(APP.graphDiv, data, layout);
+    }
+}
+
+$(document).ready(APP.init);
