@@ -43,13 +43,18 @@ Vis.core = {
     },
 
     update: function() {
+        Vis.workers.calcParams();
         Vis.workers.calcPos();
+        Vis.workers.calcPhase();
     },
 
     animate: function() {
         let data = [{
             x: Vis.x,
             y: Vis.y
+        }, {
+            x: Vis.phasex, 
+            y: Vis.phasey
         }];
 
         Plotly.animate(Vis.graph, {
@@ -89,8 +94,6 @@ Vis.workers = {
     },
 
     calcPos: function() {
-        Vis.workers.calcParams();
-
         for (let i=0; i < Vis.Nx; i++) {
             for (let j=0; j < Vis.Ny; j++) {
                 let n = Vis.Ny * i + j;
@@ -99,6 +102,18 @@ Vis.workers = {
                 Vis.x[n] = i*Vis.a + Vis.ux * offset;
                 Vis.y[n] = j*Vis.a + Vis.uy * offset;
             }
+        }
+    },
+
+    calcPhase: function() {
+        let k = Math.sqrt(Vis.kx**2 + Vis.ky**2);
+        let v = Vis.w / k;
+        let wl = 2 * Math.PI / k;
+        let nx = Math.round(Vis.Nx*Vis.a/wl);
+        let ny = Math.round(Vis.Ny*Vis.a/wl);
+        for (let i=-5; i <= 5; i++) {
+            Vis.phasex[i+1] = (Vis.t*v*Vis.kx/k + i*Vis.Nx*Vis.a/2) % (nx * wl);
+            Vis.phasey[i+1] = (Vis.t*v*Vis.ky/k + i*Vis.Ny*Vis.a/2) % (ny * wl);
         }
     }
 }
@@ -123,6 +138,9 @@ Vis.setup = {
 
         Vis.x = new Array(Vis.Nx * Vis.Ny);
         Vis.y = new Array(Vis.Nx * Vis.Ny);
+
+        Vis.phasex = new Array(11);
+        Vis.phasey = new Array(11);
     },
 
     initGraph: function() {
@@ -135,6 +153,15 @@ Vis.setup = {
             mode: 'markers',
             markers: {
                 size: 6
+            }
+        }, {
+            x: Vis.phasex,
+            y: Vis.phasey,
+            type: 'scatter',
+            mode: 'markers',
+            markers: {
+                size: 8,
+                color: 'red'
             }
         }];
 
