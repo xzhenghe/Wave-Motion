@@ -2,23 +2,32 @@ window.APP = window.APP || {};
 
 APP.init = function() {
     APP.isRunning = false;
+
     APP.setup.initConsts();
     APP.setup.initVars();
+
     APP.setup.initGraph();
+    APP.setup.initButton();
+    APP.setup.initSlider();
 
     APP.start();
 };
 
 APP.start = function() {
+    if (APP._stoptime) {
+        APP._then += Date.now() - APP._stoptime; // add stopped time
+    };
+
     if (!APP.isRunning) {
         APP.core.frame();
         APP.isRunning = true;
-    }
+    };
 };
 
 APP.stop = function() {
     window.cancelAnimationFrame(APP.animationFrameLoop);
     APP.isRunning = false;
+    APP._stoptime = Date.now(); // record when animation paused
 }
 
 APP.core = {
@@ -40,7 +49,7 @@ APP.core = {
             x: APP.x
         }];
 
-        Plotly.animate(APP.graphDiv, {
+        Plotly.animate(APP.graph, {
             data: data
         }, {
             transition: {
@@ -75,9 +84,7 @@ APP.setup = {
         APP.a = 1; // atomic spacing
         APP.dw = 1; // debye wavelength
 
-        APP.N = 25; // # of atoms
-
-        APP.graphDiv = document.getElementById('myDiv'); // div of graph
+        APP.N = 10; // # of atoms
     },
 
     initVars: function() {
@@ -95,11 +102,16 @@ APP.setup = {
     },
 
     initGraph: function() {
+        APP.graph = document.getElementById('myDiv'); // div of graph
+
         let data = [{
             x: APP.x,
             y: APP.y,
             type: 'scatter',
-            mode: 'markers'
+            mode: 'markers',
+            marker: {
+                size: 10
+            }
         }];
 
         let layout = {
@@ -107,8 +119,40 @@ APP.setup = {
             yaxis: { range: [-1, 1] }
         };
 
-        Plotly.plot(APP.graphDiv, data, layout);
+        Plotly.plot(APP.graph, data, layout);
+    },
+
+    initButton: function() {
+        APP.button = document.getElementById('start-stop');
+
+        APP.button.addEventListener('click', function() {
+            if (APP.isRunning) {
+                APP.stop();
+            } else {
+                APP.start();
+            };
+        });
+    },
+
+    initSlider: function() {
+        // r sliders
+        APP.rRange = document.getElementById('r-range');
+        APP.rDisplay = document.getElementById('r-display');
+
+        APP.rRange.addEventListener('input', function() {
+            APP.r = APP.rRange.value;
+            APP.rDisplay.textContent = 'r = ' + APP.r;
+        });
+
+        // u sliders
+        APP.uRange = document.getElementById('u-range');
+        APP.uDisplay = document.getElementById('u-display');
+
+        APP.uRange.addEventListener('input', function() {
+            APP.u = APP.uRange.value;
+            APP.uDisplay.textContent = 'u = ' + APP.u;
+        });
     }
 }
 
-$(document).ready(APP.init);
+document.addEventListener('DOMContentLoaded', APP.init);
