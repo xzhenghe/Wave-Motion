@@ -134,11 +134,11 @@ Vis.setup = {
     initVars: function() {
         Vis._then = Date.now();
 
-        Vis.rx = 0.5; // % of max x wavenumber, (-1, 1)
-        Vis.ry = 0.5; // % of max y wavenumber, (-1, 1)
+        Vis.rx = 0.20; // % of max x wavenumber, (-1, 1)
+        Vis.ry = 0.50; // % of max y wavenumber, (-1, 1)
 
-        Vis.ux = -0.5; // x amplitude
-        Vis.uy = 0.5; // y amplitude
+        Vis.ux = -0.30; // x amplitude
+        Vis.uy = 0.60; // y amplitude
 
         Vis.x = new Array(Vis.N);
         Vis.y = new Array(Vis.N);
@@ -219,6 +219,8 @@ Vis.setup = {
             Arrow.uArrow.y = parseFloat(Vis.uy);
             Arrow.core.draw();
         });
+
+        Vis.core.updateSliders();
     }
 }
 
