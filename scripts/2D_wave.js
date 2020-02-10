@@ -55,7 +55,7 @@ Vis.core = {
 
         Vis.phase.data(d3.zip(Vis.phasex, Vis.phasey))
                     .attr('cx', function(d) { return d[0] })
-                    .attr('cy', function(d) { return d[1] });
+                    .attr('cy', function(d) { return -d[1] });
     },
 
     updateSliders: function() {
@@ -93,15 +93,15 @@ Vis.workers = {
         }
     },
 
-    calcPhase: function() {
+    calcPhase: function() { //broken in general...
         let k = Math.sqrt(Vis.kx**2 + Vis.ky**2);
-        let v = Vis.w / k;
+        let v = Vis.w / k; // broken at small values of k
         let wl = 2 * Math.PI / k;
         let nx = Math.round(Vis.Nx*Vis.a/wl);
         let ny = Math.round(Vis.Ny*Vis.a/wl);
         for (let i=-5; i <= 5; i++) {
-            Vis.phasex[i+1] = (Vis.t*v*Vis.kx/k + i*Vis.Nx*Vis.a/2) % (nx * wl);
-            Vis.phasey[i+1] = (Vis.t*v*Vis.ky/k + i*Vis.Ny*Vis.a/2) % (ny * wl);
+            Vis.phasex[i+5] = (Vis.t*v*Vis.kx/k + i*Vis.Nx*Vis.a/2) % (nx * wl);
+            Vis.phasey[i+5] = (Vis.t*v*Vis.ky/k + i*Vis.Ny*Vis.a/2) % (ny * wl);
         }
     }
 }
