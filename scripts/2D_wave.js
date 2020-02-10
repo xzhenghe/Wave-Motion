@@ -111,8 +111,8 @@ Vis.setup = {
         Vis.a = 1; // atomic spacing
         Vis.dw = 1; // debye wavelength
 
-        Vis.Nx = 25; // # of atoms in x direction
-        Vis.Ny = 15; // # of atoms in y direction
+        Vis.Nx = 30; // # of atoms in x direction
+        Vis.Ny = 16; // # of atoms in y direction
 
         Vis.pointR = 0.15 * Vis.a;
     },
@@ -139,24 +139,22 @@ Vis.setup = {
                         .attr('height', window.innerHeight/2)
                         .attr('viewBox', '0 0 ' + Vis.Nx*Vis.a + ' ' + Vis.Ny*Vis.a);
 
-        Vis.svg.selectAll('circle')
+        Vis.svg.append('svg').classed('wave', true)
+                .selectAll('circle')
                 .data(d3.zip(Vis.x, Vis.y))
                 .enter()
                     .append('circle')
-                        .attr('id', 'wave')
-                        .attr('r', Vis.pointR)
-                        .style('fill', 'orange');
+                        .attr('r', Vis.pointR);
         
-        Vis.svg.selectAll('circle:not(#wave)')
+        Vis.svg.append('svg').classed('phase', true)
+                .selectAll('circle')
                 .data(d3.zip(Vis.phasex, Vis.phasey))
                 .enter()
                     .append('circle')
-                        .attr('id', 'phase')
                         .attr('r', Vis.pointR)
-                        .style('fill', 'green');
         
-        Vis.wave = Vis.svg.selectAll('#wave');
-        Vis.phase = Vis.svg.selectAll('#phase');
+        Vis.wave = Vis.svg.select('.wave').selectAll('circle');
+        Vis.phase = Vis.svg.select('.phase').selectAll('circle');
     },
 
     initButton: function() {

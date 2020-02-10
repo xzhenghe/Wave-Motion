@@ -18,3 +18,11 @@ input {
     width: 95%;
     max-width: 300px;
 }
+
+.wave {
+    fill: orange;
+}
+
+.phase {
+    fill: green;
+}
