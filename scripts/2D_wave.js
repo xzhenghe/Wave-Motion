@@ -123,8 +123,8 @@ Vis.setup = {
         Vis.a = 1; // atomic spacing
         Vis.dw = 1; // debye wavelength
 
-        Vis.Nx = 20; // # of atoms in x direction
-        Vis.Ny = 18; // # of atoms in y direction
+        Vis.Nx = 25; // # of atoms in x direction
+        Vis.Ny = 15; // # of atoms in y direction
     },
 
     initVars: function() {
@@ -167,6 +167,7 @@ Vis.setup = {
 
         let layout = {
             height: window.innerHeight/2,
+            width: (Vis.Nx/Vis.Ny)*window.innerHeight/2,
             margin: {
                 l: 20,
                 r: 25,
