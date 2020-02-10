@@ -151,7 +151,7 @@ Vis.setup = {
             y: Vis.y,
             type: 'scatter',
             mode: 'markers',
-            markers: {
+            marker: {
                 size: 6
             }
         }, {
@@ -159,9 +159,9 @@ Vis.setup = {
             y: Vis.phasey,
             type: 'scatter',
             mode: 'markers',
-            markers: {
-                size: 8,
-                color: 'red'
+            marker: {
+                size: 7,
+                color: 'orange'
             }
         }];
 
@@ -174,6 +174,7 @@ Vis.setup = {
                 t: 20,
                 pad: 4
               },
+            showlegend: false,
             xaxis: { range: [0, Vis.Nx * Vis.a] },
             yaxis: { range: [0, Vis.Ny * Vis.a] }
         };
