@@ -49,9 +49,13 @@ Vis.core = {
     },
 
     animate: function() {
-        Vis.circle.data(d3.zip(Vis.x, Vis.y))
+        Vis.wave.data(d3.zip(Vis.x, Vis.y))
                     .attr('cx', function(d) { return d[0] })
                     .attr('cy', function(d) { return Vis.Ny*Vis.a - d[1] });
+
+        Vis.phase.data(d3.zip(Vis.phasex, Vis.phasey))
+                    .attr('cx', function(d) { return d[0] })
+                    .attr('cy', function(d) { return d[1] });
     },
 
     updateSliders: function() {
@@ -124,8 +128,6 @@ Vis.setup = {
 
         Vis.x = new Array(Vis.Nx * Vis.Ny);
         Vis.y = new Array(Vis.Nx * Vis.Ny);
-        Vis.workers.calcParams();
-        Vis.workers.calcPos();
 
         Vis.phasex = new Array(11);
         Vis.phasey = new Array(11);
@@ -141,44 +143,20 @@ Vis.setup = {
                 .data(d3.zip(Vis.x, Vis.y))
                 .enter()
                     .append('circle')
+                        .attr('id', 'wave')
                         .attr('r', Vis.pointR)
-                        .attr('fill', 'orange')
+                        .style('fill', 'orange');
         
-        Vis.circle = Vis.svg.selectAll('circle')
-
-        let data = [{
-            x: Vis.x,
-            y: Vis.y,
-            type: 'scatter',
-            mode: 'markers',
-            marker: {
-                size: 6
-            }
-        }, {
-            x: Vis.phasex,
-            y: Vis.phasey,
-            type: 'scatter',
-            mode: 'markers',
-            marker: {
-                size: 7,
-                color: 'orange'
-            }
-        }];
-
-        let layout = {
-            height: window.innerHeight/2,
-            width: (Vis.Nx/Vis.Ny)*window.innerHeight/2,
-            margin: {
-                l: 20,
-                r: 25,
-                b: 25,
-                t: 20,
-                pad: 4
-              },
-            showlegend: false,
-            xaxis: { range: [0, Vis.Nx * Vis.a] },
-            yaxis: { range: [0, Vis.Ny * Vis.a] }
-        };
+        Vis.svg.selectAll('circle:not(#wave)')
+                .data(d3.zip(Vis.phasex, Vis.phasey))
+                .enter()
+                    .append('circle')
+                        .attr('id', 'phase')
+                        .attr('r', Vis.pointR)
+                        .style('fill', 'green');
+        
+        Vis.wave = Vis.svg.selectAll('#wave');
+        Vis.phase = Vis.svg.selectAll('#phase');
     },
 
     initButton: function() {
