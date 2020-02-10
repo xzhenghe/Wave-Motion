@@ -49,13 +49,23 @@ Vis.core = {
     },
 
     animate: function() {
-        Vis.wave.data(d3.zip(Vis.x, Vis.y))
-                    .attr('cx', function(d) { return d[0] })
-                    .attr('cy', function(d) { return Vis.Ny*Vis.a - d[1] });
+        Vis.context.clearRect(0, 0, Vis.canvasx, Vis.canvasy);
+        
+        Vis.context.fillStyle = 'orange';
+        for (let i=0; i < Vis.N; i++) {
+            Vis.context.beginPath();
+            Vis.context.arc(Vis.convertCanvasX(Vis.x[i]), Vis.convertCanvasY(Vis.y[i])
+                                , Vis.convertCanvasX(Vis.pointR), 0, 2*Math.PI);
+            Vis.context.fill();
+        }
 
-        Vis.phase.data(d3.zip(Vis.phasex, Vis.phasey))
-                    .attr('cx', function(d) { return d[0] })
-                    .attr('cy', function(d) { return -d[1] });
+        Vis.context.fillStyle = 'green';
+        for (let i=0; i < 11; i++) {
+            Vis.context.beginPath();
+            Vis.context.arc(Vis.convertCanvasX(Vis.phasex[i]), Vis.convertCanvasY(Vis.phasey[i])
+                                , Vis.convertCanvasX(Vis.pointR), 0, 2*Math.PI);
+            Vis.context.fill();
+        }
     },
 
     updateSliders: function() {
@@ -111,8 +121,12 @@ Vis.setup = {
         Vis.a = 1; // atomic spacing
         Vis.dw = 1; // debye wavelength
 
-        Vis.Nx = 30; // # of atoms in x direction
+        Vis.Nx = 32; // # of atoms in x direction
         Vis.Ny = 16; // # of atoms in y direction
+        Vis.N = Vis.Nx * Vis.Ny;
+
+        Vis.canvasx = (Vis.Nx/Vis.Ny)*window.innerHeight/2;
+        Vis.canvasy = window.innerHeight/2;
 
         Vis.pointR = 0.15 * Vis.a;
     },
@@ -126,35 +140,25 @@ Vis.setup = {
         Vis.ux = -0.5; // x amplitude
         Vis.uy = 0.5; // y amplitude
 
-        Vis.x = new Array(Vis.Nx * Vis.Ny);
-        Vis.y = new Array(Vis.Nx * Vis.Ny);
+        Vis.x = new Array(Vis.N);
+        Vis.y = new Array(Vis.N);
 
         Vis.phasex = new Array(11);
         Vis.phasey = new Array(11);
     },
 
     initGraph: function() {
-        Vis.svg = d3.select('#visualisation')
-                        .attr('width', (Vis.Nx/Vis.Ny)*window.innerHeight/2)
-                        .attr('height', window.innerHeight/2)
-                        .attr('viewBox', '0 0 ' + Vis.Nx*Vis.a + ' ' + Vis.Ny*Vis.a);
+        Vis.canvas = d3.select('#visualisation')
+                        .attr('width', Vis.canvasx)
+                        .attr('height', Vis.canvasy);
+        Vis.context = Vis.canvas.node().getContext('2d');
 
-        Vis.svg.append('svg').classed('wave', true)
-                .selectAll('circle')
-                .data(d3.zip(Vis.x, Vis.y))
-                .enter()
-                    .append('circle')
-                        .attr('r', Vis.pointR);
-        
-        Vis.svg.append('svg').classed('phase', true)
-                .selectAll('circle')
-                .data(d3.zip(Vis.phasex, Vis.phasey))
-                .enter()
-                    .append('circle')
-                        .attr('r', Vis.pointR)
-        
-        Vis.wave = Vis.svg.select('.wave').selectAll('circle');
-        Vis.phase = Vis.svg.select('.phase').selectAll('circle');
+        Vis.convertCanvasX = d3.scaleLinear()
+                                .domain([0, Vis.Nx*Vis.a])
+                                .range([0, Vis.canvasx]);
+        Vis.convertCanvasY = d3.scaleLinear()
+                                .domain([0, Vis.Ny*Vis.a])
+                                .range([Vis.canvasy, 0]);
     },
 
     initButton: function() {
