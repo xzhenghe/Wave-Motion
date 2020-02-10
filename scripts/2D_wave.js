@@ -49,25 +49,9 @@ Vis.core = {
     },
 
     animate: function() {
-        let data = [{
-            x: Vis.x,
-            y: Vis.y
-        }, {
-            x: Vis.phasex, 
-            y: Vis.phasey
-        }];
-
-        Plotly.animate(Vis.graph, {
-            data: data
-        }, {
-            transition: {
-                duration: 0
-            },
-            frame: {
-                duration: 0,
-                redraw: false
-            }
-        });
+        Vis.circle.data(d3.zip(Vis.x, Vis.y))
+                    .attr('cx', function(d) { return d[0] })
+                    .attr('cy', function(d) { return Vis.Ny*Vis.a - d[1] });
     },
 
     updateSliders: function() {
@@ -125,6 +109,8 @@ Vis.setup = {
 
         Vis.Nx = 25; // # of atoms in x direction
         Vis.Ny = 15; // # of atoms in y direction
+
+        Vis.pointR = 0.15 * Vis.a;
     },
 
     initVars: function() {
@@ -138,13 +124,27 @@ Vis.setup = {
 
         Vis.x = new Array(Vis.Nx * Vis.Ny);
         Vis.y = new Array(Vis.Nx * Vis.Ny);
+        Vis.workers.calcParams();
+        Vis.workers.calcPos();
 
         Vis.phasex = new Array(11);
         Vis.phasey = new Array(11);
     },
 
     initGraph: function() {
-        Vis.graph = document.getElementById('visualisation'); // div of graph
+        Vis.svg = d3.select('#visualisation')
+                        .attr('width', (Vis.Nx/Vis.Ny)*window.innerHeight/2)
+                        .attr('height', window.innerHeight/2)
+                        .attr('viewBox', '0 0 ' + Vis.Nx*Vis.a + ' ' + Vis.Ny*Vis.a);
+
+        Vis.svg.selectAll('circle')
+                .data(d3.zip(Vis.x, Vis.y))
+                .enter()
+                    .append('circle')
+                        .attr('r', Vis.pointR)
+                        .attr('fill', 'orange')
+        
+        Vis.circle = Vis.svg.selectAll('circle')
 
         let data = [{
             x: Vis.x,
@@ -179,8 +179,6 @@ Vis.setup = {
             xaxis: { range: [0, Vis.Nx * Vis.a] },
             yaxis: { range: [0, Vis.Ny * Vis.a] }
         };
-
-        Plotly.newPlot(Vis.graph, data, layout);
     },
 
     initButton: function() {
